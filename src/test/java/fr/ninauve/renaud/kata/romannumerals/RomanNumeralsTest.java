@@ -47,4 +47,12 @@ public class RomanNumeralsTest {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
+
+    @DisplayName("Between 10 and 19, there is a X followed by the conversion of the last digit.")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"10, X", "11, XI", "12, XII", "13, XIII", "14, XIV", "15, XV", "16, XVI", "17, XVII", "18, XVIII", "19, XIX"})
+    public void between_10_and_19(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
+    }
 }
