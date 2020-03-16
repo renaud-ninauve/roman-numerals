@@ -63,4 +63,12 @@ public class RomanNumeralsTest {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
+
+    @DisplayName("Above 100.")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"100, C", "356, CCCLVI", "777, DCCLXXVII", "999, CMXCIX", "2020, MMXX"})
+    public void above_100(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
+    }
 }
