@@ -1,11 +1,13 @@
 package fr.ninauve.renaud.kata.romannumerals;
 
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class RomanNumerals {
 
-    private static final PartialToRomanConverterComposite bellow10PartialToRomanConverters = new PartialToRomanConverterComposite.Builder()
+    private static final Function<Integer, Optional<String>> bellow10PartialToRomanConverters = new PartialToRomanConverterComposite.Builder()
             .partialToRomanConverter(
                     n -> n <= 3,
                     RomanNumerals::repeatI)
@@ -23,25 +25,25 @@ public final class RomanNumerals {
                     n -> "IX")
         .build();
 
-    private static final PartialToRomanConverterComposite partialToRomanConverter = new PartialToRomanConverterComposite.Builder()
+    private static final Function<Integer, Optional<String>> partialToRomanConverter = new PartialToRomanConverterComposite.Builder()
             .partialToRomanConverter(
                     n -> n < 1 || n > 3000,
                     n -> {
                         throw new IllegalArgumentException();
                     })
-            .partialToRomanConverters(bellow10PartialToRomanConverters)
+            .partialToRomanConverter(bellow10PartialToRomanConverters)
             .partialToRomanConverter(
                     n -> n == 10,
                     n -> "X"
             )
             .partialToRomanConverter(
                     n -> n > 10 && n <= 19,
-                    n -> "X" + bellow10PartialToRomanConverters.convert(n - 10))
+                    n -> "X" + bellow10PartialToRomanConverters.apply(n - 10).get())
             .build();
 
     public static String numberToRoman(final int number) {
 
-        return partialToRomanConverter.convert(number);
+        return partialToRomanConverter.apply(number).orElse(null);
     }
 
     private static String repeatI(int times) {
