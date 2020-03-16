@@ -1,7 +1,6 @@
 package fr.ninauve.renaud.kata.romannumerals;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -10,7 +9,29 @@ import static fr.ninauve.renaud.kata.romannumerals.ToDigits.toDigits;
 
 public final class RomanNumerals {
 
-    private static final Function<Integer, Optional<String>> bellow10Converter = new PartialToRomanConverterComposite.Builder()
+    private static final Map<String, String> REPLACEMENTS_FOR_TENS = new LinkedHashMap<>();
+
+    static {
+        REPLACEMENTS_FOR_TENS.put("X", "C");
+        REPLACEMENTS_FOR_TENS.put("V", "L");
+        REPLACEMENTS_FOR_TENS.put("I", "X");
+    }
+
+    private static final Map<String, String> REPLACEMENTS_FOR_HUNDREDS = new LinkedHashMap<>();
+
+    static {
+        REPLACEMENTS_FOR_HUNDREDS.put("X", "M");
+        REPLACEMENTS_FOR_HUNDREDS.put("V", "D");
+        REPLACEMENTS_FOR_HUNDREDS.put("I", "C");
+    }
+
+    private static final Map<String, String> REPLACEMENTS_FOR_THOUSANDS = new LinkedHashMap<>();
+
+    static {
+        REPLACEMENTS_FOR_THOUSANDS.put("I", "M");
+    }
+
+    private static final Function<Integer, Optional<String>> CONVERTER_FOR_BELLOW_10 = new PartialToRomanConverterComposite.Builder()
             .partialToRomanConverter(
                     n -> n <= 3,
                     RomanNumerals::repeatI)
@@ -28,6 +49,13 @@ public final class RomanNumerals {
                     n -> "IX")
             .build();
 
+    private static final Function<Integer, Optional<String>> CONVERTER_FOR_TENS =
+            converterWithReplacements(REPLACEMENTS_FOR_TENS);
+    private static final Function<Integer, Optional<String>> CONVERTER_FOR_HUNDREDS =
+            converterWithReplacements(REPLACEMENTS_FOR_HUNDREDS);
+    private static final Function<Integer, Optional<String>> CONVERTER_FOR_THOUSANDS =
+            converterWithReplacements(REPLACEMENTS_FOR_THOUSANDS);
+
     public static String numberToRoman(final int number) {
 
         if (number < 1 || number > 3000) {
@@ -36,19 +64,37 @@ public final class RomanNumerals {
 
         final List<Integer> digits = toDigits(number);
         final StringBuilder result = new StringBuilder();
+        if (digits.size() >= 4) {
+            final Integer thousands = digits.get(3);
+            final String convertedThousands = CONVERTER_FOR_THOUSANDS.apply(thousands).get();
+            result.append(convertedThousands);
+        }
+        if (digits.size() >= 3) {
+            final Integer hundreds = digits.get(2);
+            final String convertedHundreds = CONVERTER_FOR_HUNDREDS.apply(hundreds).get();
+            result.append(convertedHundreds);
+        }
         if (digits.size() >= 2) {
-            final Integer secondDigit = digits.get(1);
-            final String secondDigitConverted =
-                    bellow10Converter.apply(secondDigit).orElse("")
-                            .replaceAll("X", "C")
-                            .replaceAll("V", "L")
-                            .replaceAll("I", "X");
-            result.append(secondDigitConverted);
+            final Integer tens = digits.get(1);
+            final String convertedTens = CONVERTER_FOR_TENS.apply(tens).get();
+            result.append(convertedTens);
         }
         final Integer firstDigit = digits.get(0);
-        final String firstDigitConverted = bellow10Converter.apply(firstDigit).orElse("");
+        final String firstDigitConverted = CONVERTER_FOR_BELLOW_10.apply(firstDigit).orElse("");
         result.append(firstDigitConverted);
         return result.toString();
+    }
+
+    private static Function<Integer, Optional<String>> converterWithReplacements(final Map<String, String> replacements) {
+        return CONVERTER_FOR_BELLOW_10.andThen(o -> Optional.of(replaceLetters(replacements, o.get())));
+    }
+
+    private static String replaceLetters(Map<String, String> replacements, String str) {
+        String result = str;
+        for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+            result = result.replaceAll(replacement.getKey(), replacement.getValue());
+        }
+        return result;
     }
 
     private static String repeatI(int times) {
