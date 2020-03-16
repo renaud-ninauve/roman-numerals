@@ -2,6 +2,7 @@ package fr.ninauve.renaud.kata.romannumerals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,5 +22,13 @@ public class RomanNumeralsTest {
     public void invalid_number(int number) {
         assertThrows(IllegalArgumentException.class,
                 () -> RomanNumerals.numberToRoman(number));
+    }
+
+    @DisplayName("Bellow 3, the roman number is several I.")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"1, I", "2, II", "3, III"})
+    public void valid_number(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
     }
 }
