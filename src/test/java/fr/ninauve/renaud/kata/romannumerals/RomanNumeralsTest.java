@@ -55,4 +55,12 @@ public class RomanNumeralsTest {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
+
+    @DisplayName("Between 20 and 99.")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"22, XXII", "24, XXIV", "42, XLII", "99, XCIX"})
+    public void between_20_and_99(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
+    }
 }
