@@ -26,6 +26,9 @@ public final class RomanNumerals {
             .partialToRomanConverter(
                     n -> n == 5,
                     n -> "V")
+            .partialToRomanConverter(
+                    n -> n == 9,
+                    n -> "IX")
             .build();
 
     public static String numberToRoman(final int number) {
