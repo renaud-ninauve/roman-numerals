@@ -32,10 +32,10 @@ public class RomanNumeralsTest {
         assertEquals(expected, actual);
     }
 
-    @DisplayName("4 is IV and 5, V")
+    @DisplayName("4, 5, 9")
     @ParameterizedTest(name = "{0} -> {1}.")
-    @CsvSource({"4, IV", "5, V"})
-    public void equals_to_4_or_5(int number, String expected) {
+    @CsvSource({"4, IV", "5, V", "9, IX"})
+    public void equals_to_4_or_5_or_9(int number, String expected) {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
