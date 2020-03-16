@@ -1,20 +1,11 @@
 package fr.ninauve.renaud.kata.romannumerals;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class RomanNumerals {
 
-    private static List<PartialToRomanConverter> partialToRomanConverters = new PartialToRomanConverter.PartialToRomanConvertersBuilder()
-            .partialToRomanConverter(
-                    n -> n < 1 || n > 3000,
-                    n -> {
-                        throw new IllegalArgumentException();
-                    })
+    private static final PartialToRomanConverterComposite bellow10PartialToRomanConverters = new PartialToRomanConverterComposite.Builder()
             .partialToRomanConverter(
                     n -> n <= 3,
                     RomanNumerals::repeatI)
@@ -30,15 +21,27 @@ public final class RomanNumerals {
             .partialToRomanConverter(
                     n -> n == 9,
                     n -> "IX")
+        .build();
+
+    private static final PartialToRomanConverterComposite partialToRomanConverter = new PartialToRomanConverterComposite.Builder()
+            .partialToRomanConverter(
+                    n -> n < 1 || n > 3000,
+                    n -> {
+                        throw new IllegalArgumentException();
+                    })
+            .partialToRomanConverters(bellow10PartialToRomanConverters)
+            .partialToRomanConverter(
+                    n -> n == 10,
+                    n -> "X"
+            )
+            .partialToRomanConverter(
+                    n -> n > 10 && n <= 19,
+                    n -> "X" + bellow10PartialToRomanConverters.convert(n - 10))
             .build();
 
     public static String numberToRoman(final int number) {
 
-        return partialToRomanConverters.stream()
-                .filter(c -> c.isApplicableTo(number))
-                .findFirst()
-                .map(c -> c.convert(number))
-                .orElse(null);
+        return partialToRomanConverter.convert(number);
     }
 
     private static String repeatI(int times) {
@@ -47,36 +50,4 @@ public final class RomanNumerals {
                 .collect(Collectors.joining());
     }
 
-    private static class PartialToRomanConverter {
-        private final Predicate<Integer> applicableTo;
-        private final Function<Integer, String> convert;
-
-        private static class PartialToRomanConvertersBuilder {
-            private final List<PartialToRomanConverter> partialToRomanConverters = new ArrayList<>();
-
-            private PartialToRomanConvertersBuilder partialToRomanConverter(Predicate<Integer> applicableTo,
-                                                                            Function<Integer, String> convert) {
-                this.partialToRomanConverters.add(new PartialToRomanConverter(applicableTo, convert));
-                return this;
-            }
-
-            private List<PartialToRomanConverter> build() {
-                return partialToRomanConverters;
-            }
-        }
-
-        private PartialToRomanConverter(Predicate<Integer> applicableTo,
-                                        Function<Integer, String> convert) {
-            this.applicableTo = applicableTo;
-            this.convert = convert;
-        }
-
-        public boolean isApplicableTo(int number) {
-            return applicableTo.test(number);
-        }
-
-        public String convert(int number) {
-            return convert.apply(number);
-        }
-    }
 }
