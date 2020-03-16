@@ -27,7 +27,15 @@ public class RomanNumeralsTest {
     @DisplayName("Bellow 3, the roman number is several I.")
     @ParameterizedTest(name = "{0} -> {1}.")
     @CsvSource({"1, I", "2, II", "3, III"})
-    public void valid_number(int number, String expected) {
+    public void bellow_3(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
+    }
+
+    @DisplayName("4 is IV and 5, V")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"4, IV", "5, V"})
+    public void equals_to_4_or_5(int number, String expected) {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
