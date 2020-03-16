@@ -39,4 +39,12 @@ public class RomanNumeralsTest {
         final String actual = RomanNumerals.numberToRoman(number);
         assertEquals(expected, actual);
     }
+
+    @DisplayName("Between 6 and 8, there is a V followed by I.")
+    @ParameterizedTest(name = "{0} -> {1}.")
+    @CsvSource({"6, VI", "7, VII", "8, VIII"})
+    public void between_6_and_8(int number, String expected) {
+        final String actual = RomanNumerals.numberToRoman(number);
+        assertEquals(expected, actual);
+    }
 }
