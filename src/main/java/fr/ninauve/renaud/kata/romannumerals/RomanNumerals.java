@@ -17,15 +17,16 @@ public final class RomanNumerals {
                     })
             .partialToRomanConverter(
                     n -> n <= 3,
-                    n -> IntStream.rangeClosed(1, n)
-                            .mapToObj(i -> "I")
-                            .collect(Collectors.joining()))
+                    RomanNumerals::repeatI)
             .partialToRomanConverter(
                     n -> n == 4,
                     n -> "IV")
             .partialToRomanConverter(
                     n -> n == 5,
                     n -> "V")
+            .partialToRomanConverter(
+                    n -> n >= 6 && n <= 8,
+                    n -> "V" + repeatI(n-5))
             .partialToRomanConverter(
                     n -> n == 9,
                     n -> "IX")
@@ -38,6 +39,12 @@ public final class RomanNumerals {
                 .findFirst()
                 .map(c -> c.convert(number))
                 .orElse(null);
+    }
+
+    private static String repeatI(int times) {
+        return IntStream.rangeClosed(1, times)
+                .mapToObj(i -> "I")
+                .collect(Collectors.joining());
     }
 
     private static class PartialToRomanConverter {
