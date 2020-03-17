@@ -1,6 +1,8 @@
 package fr.ninauve.renaud.kata.romannumerals;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -31,7 +33,7 @@ public final class RomanNumerals {
         REPLACEMENTS_FOR_THOUSANDS.put("I", "M");
     }
 
-    private static final Function<Integer, Optional<String>> CONVERTER_FOR_BELLOW_10 = new PartialToRomanConverterComposite.Builder()
+    private static final Function<Integer, String> CONVERTER_FOR_BELLOW_10 = new ToRomanBuilder()
             .partialToRomanConverter(
                     n -> n <= 3,
                     RomanNumerals::repeatI)
@@ -49,11 +51,11 @@ public final class RomanNumerals {
                     n -> "IX")
             .build();
 
-    private static final Function<Integer, Optional<String>> CONVERTER_FOR_TENS =
+    private static final Function<Integer, String> CONVERTER_FOR_TENS =
             converterWithReplacements(REPLACEMENTS_FOR_TENS);
-    private static final Function<Integer, Optional<String>> CONVERTER_FOR_HUNDREDS =
+    private static final Function<Integer, String> CONVERTER_FOR_HUNDREDS =
             converterWithReplacements(REPLACEMENTS_FOR_HUNDREDS);
-    private static final Function<Integer, Optional<String>> CONVERTER_FOR_THOUSANDS =
+    private static final Function<Integer, String> CONVERTER_FOR_THOUSANDS =
             converterWithReplacements(REPLACEMENTS_FOR_THOUSANDS);
 
     public static String numberToRoman(final int number) {
@@ -66,27 +68,27 @@ public final class RomanNumerals {
         final StringBuilder result = new StringBuilder();
         if (digits.size() >= 4) {
             final Integer thousands = digits.get(3);
-            final String convertedThousands = CONVERTER_FOR_THOUSANDS.apply(thousands).get();
+            final String convertedThousands = CONVERTER_FOR_THOUSANDS.apply(thousands);
             result.append(convertedThousands);
         }
         if (digits.size() >= 3) {
             final Integer hundreds = digits.get(2);
-            final String convertedHundreds = CONVERTER_FOR_HUNDREDS.apply(hundreds).get();
+            final String convertedHundreds = CONVERTER_FOR_HUNDREDS.apply(hundreds);
             result.append(convertedHundreds);
         }
         if (digits.size() >= 2) {
             final Integer tens = digits.get(1);
-            final String convertedTens = CONVERTER_FOR_TENS.apply(tens).get();
+            final String convertedTens = CONVERTER_FOR_TENS.apply(tens);
             result.append(convertedTens);
         }
         final Integer firstDigit = digits.get(0);
-        final String firstDigitConverted = CONVERTER_FOR_BELLOW_10.apply(firstDigit).orElse("");
+        final String firstDigitConverted = CONVERTER_FOR_BELLOW_10.apply(firstDigit);
         result.append(firstDigitConverted);
         return result.toString();
     }
 
-    private static Function<Integer, Optional<String>> converterWithReplacements(final Map<String, String> replacements) {
-        return CONVERTER_FOR_BELLOW_10.andThen(o -> Optional.of(replaceLetters(replacements, o.get())));
+    private static Function<Integer, String> converterWithReplacements(final Map<String, String> replacements) {
+        return CONVERTER_FOR_BELLOW_10.andThen(s -> replaceLetters(replacements, s));
     }
 
     private static String replaceLetters(Map<String, String> replacements, String str) {
